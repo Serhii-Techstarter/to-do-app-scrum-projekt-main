@@ -117,7 +117,7 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/to-do-app-backend:latest
+          tags: ghcr.io/serhii-techstarter/to-do-app-backend:latest
 
       # Собираем и публикуем frontend-образ
       - name: Build and push frontend image
@@ -125,4 +125,4 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/to-do-app-frontend:latest
+          tags: ghcr.io/serhii-techstarter/to-do-app-frontend:latest
