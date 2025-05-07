@@ -32,7 +32,58 @@
 #           push: true
 #           tags: ${{ steps.meta.outputs.tags }}
 
-name: Publish Docker Image to GHCR
+# name: Publish Docker Image to GHCR
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# permissions:
+#   contents: read
+#   packages: write
+
+# jobs:
+#   publish:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Check out the repository code
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       # Set up Docker metadata for tagging
+#       - name: Set up Docker metadata
+#         id: meta
+#         uses: docker/metadata-action@v5
+#         with:
+#           images: ghcr.io/serhii-techstarter/to-do-app-scrum-projekt-main/game
+#           tags: |
+#             type=sha
+#             latest
+
+#       # Log in to GitHub Container Registry
+#       - name: Login to GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+
+#       # Clear Docker cache to avoid conflicts
+#       - name: Clear Docker cache
+#         run: docker builder prune -af
+
+#       # Build and push the Docker image
+#       - name: Build and push Docker image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: .
+#           push: true
+#           tags: |
+#             ${{ steps.meta.outputs.tags }}
+
+
+name: Publish Docker Images
 
 on:
   push:
@@ -44,40 +95,34 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      # Check out the repository code
-      - name: Checkout Code
+      # Проверяем код из репозитория
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Set up Docker metadata for tagging
-      - name: Set up Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/serhii-techstarter/to-do-app-scrum-projekt-main/game
-          tags: |
-            type=sha
-            latest
-
-      # Log in to GitHub Container Registry
-      - name: Login to GitHub Container Registry
+      # Логинимся в GitHub Container Registry (GHCR)
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Clear Docker cache to avoid conflicts
-      - name: Clear Docker cache
-        run: docker builder prune -af
-
-      # Build and push the Docker image
-      - name: Build and push Docker image
+      # Собираем и публикуем backend-образ
+      - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
           push: true
-          tags: |
-            ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/${{ github.repository_owner }}/to-do-app-backend:latest
+
+      # Собираем и публикуем frontend-образ
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/to-do-app-frontend:latest

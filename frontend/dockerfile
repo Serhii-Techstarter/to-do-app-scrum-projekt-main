@@ -1,11 +1,37 @@
-FROM node:18-bullseye-slim
+# FROM node:18-bullseye-slim
+
+# WORKDIR /app
+
+# COPY . .
+
+# RUN npm install
+
+# EXPOSE 5173
+
+# CMD ["npm", "run", "devdocker"]
+
+# Используем Node.js для сборки
+FROM node:18-bullseye AS builder
 
 WORKDIR /app
 
-COPY . .
-
+# Копируем package.json и устанавливаем зависимости
+COPY package*.json ./
 RUN npm install
 
-EXPOSE 5173
+# Копируем весь проект и собираем его
+COPY . .
+RUN npm run build
 
-CMD ["npm", "run", "devdocker"]
+# Используем nginx для раздачи статических файлов
+FROM nginx:alpine
+
+# Копируем собранные файлы из предыдущего этапа
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Открываем порт 80
+EXPOSE 80
+
+# Запускаем nginx
+CMD ["nginx", "-g", "daemon off;"]
+
