@@ -54,7 +54,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/Serhii-Techstarter/publish-packages/game
+          images: ghcr.io/Serhii-Techstarter/to-do-app-scrum-projekt-main/game
           tags: |
             type=sha
 
