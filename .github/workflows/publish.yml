@@ -32,7 +32,7 @@
 #           push: true
 #           tags: ${{ steps.meta.outputs.tags }}
 
-name: Publish to Docker
+name: Publish Docker Image to GHCR
 
 on:
   push:
@@ -47,9 +47,11 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      # Check out the repository code
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Set up Docker metadata for tagging
       - name: Set up Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -59,6 +61,7 @@ jobs:
             type=sha
             latest
 
+      # Log in to GitHub Container Registry
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -66,12 +69,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Clear Docker cache to avoid conflicts
       - name: Clear Docker cache
         run: docker builder prune -af
 
+      # Build and push the Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
